@@ -1,134 +1,267 @@
-package Task;
+package dao;
 
-public class Student {
-		    private int id;
-	    private String name;
-	    private String grade;
-
-	    public Student(int id, String name, String grade) {
-	        this.id = id;
-	        this.name = name;
-	        this.grade = grade;
-	    }
-
-	  
-
-		// Getters and setters
-	    public int getId() {
-	        return id;
-	    }
-
-	    public void setId(int id) {
-	        this.id = id;
-	    }
-
-	    public String getName() {
-	        return name;
-	    }
-
-	    public void setName(String name) {
-	        this.name = name;
-	    }
-
-	    public String getGrade() {
-	        return grade;
-	    }
-
-	    public void setGrade(String grade) {
-	        this.grade = grade;
-	    }
-
-	    @Override
-	    public String toString() {
-	        return "ID: " + id + ", Name: " + name + ", Grade: " + grade;
-	    }
-
-		}
+public class student {
+private int sid;
 
 
 
-######
-package Task;
+private String name;
+private long  phone;
+private String mail;
+private String branch;
+private String location;
 
+
+
+public student( int sid,String name, long phone, String mail, String branch, String location) {
+	super();
+	this.sid=sid;
+	this.name = name;
+	this.phone = phone;
+	this.mail = mail;
+	this.branch = branch;
+	this.location = location;
+}
+public int getSid() {
+	return sid;
+}
+
+public void setSid(int sid) {
+	this.sid = sid;
+}
+public String getName() {
+	return name;
+}
+
+public void setName(String name) {
+	this.name = name;
+}
+
+public long getPhone() {
+	return phone;
+}
+
+public void setPhone(long phone) {
+	this.phone = phone;
+}
+
+public String getMail() {
+	return mail;
+}
+
+public void setMail(String mail) {
+	this.mail = mail;
+}
+
+public String getBranch() {
+	return branch;
+}
+
+public void setBranch(String branch) {
+	this.branch = branch;
+}
+
+public String getLocation() {
+	return location;
+}
+
+public void setLocation(String location) {
+	this.location = location;
+}
+
+public String toString() {
+	return "["+sid+" "+name+" "+phone+" "+mail+" "+branch+" "+location+"]" ;
+	
+}
+
+
+
+}
+
+
+
+
+
+////operations
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentManagementSystem {
-	 private List<Student> students = new ArrayList<>();
+public class Studentdao {
+public static List getstudent() {
+	Connection con=null;
+	PreparedStatement ps=null;
+	ResultSet rs=null;
+	student s=null;
+	ArrayList <student> studentList= new ArrayList <student>();
+	String query="SELECT * FROM student";
+	
+	
+	try {
+		con=connector.requestConnection();
+		ps=con.prepareStatement(query);
+		
+		
+		rs=ps.executeQuery();
+		while(rs.next()){
+			int sid=rs.getInt(1);
+			String name=rs.getString(2);
+			long phone=rs.getLong(3);
+			String mail=rs.getString(4);
+			String branch=rs.getString(5);
+			String location=rs.getString(6);
+			s=new  student(sid,name,phone,mail,branch,location);
+			studentList.add(s);
+		}
+	
+	} catch (ClassNotFoundException |SQLException| NullPointerException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return studentList ;
+	
+}
+public static student getStudent(int id) {
+	Connection con=null;
+	PreparedStatement ps=null;
+	ResultSet rs=null;
 
-	    // Create (Add) a student
-	    public void addStudent(Student student) {
-	        students.add(student);
-	    }
+	String query="SELECT * FROM student WHERE SID=?";
+	student s=null;
+	try {
+		con=connector.requestConnection();
+		ps=con.prepareStatement(query);
+		ps.setInt(1, id);
+		rs=ps.executeQuery();
+		
+		if(rs.next()){
+			int sid=rs.getInt(1);
+			String name=rs.getString(2);
+			long phone=rs.getLong(3);
+			String mail=rs.getString(4);
+			String branch=rs.getString(5);
+			String location=rs.getString(6);
+			s=new  student(sid,name,phone,mail,branch,location);
+		}
+		
+		
+		
+	} catch (ClassNotFoundException |SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return s;
+	
+	
+}
+public static boolean updateStudent(student s)
+{
+	Connection con=null;
+	PreparedStatement ps=null;
+	int i=0;
+String query="UPDATE  student SET PHONE=? WHERE SID=?";
+try {
+	con=connector.requestConnection();
+	ps=con.prepareStatement(query);
+	ps.setLong(1, s.getPhone());
+	ps.setInt(2, s.getSid());
+	 i=ps.executeUpdate();
+	
+	
+} catch (ClassNotFoundException | SQLException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}  
 
-	    // Read (View) all students
-	    public void viewStudents() {
-	        students.forEach(System.out::println);
-	    }
 
-	    // Update a student's details
-	    public void updateStudent(int id, String newName, String newGrade) {
-	        for (Student s : students) {
-	            if (s.getId() == id) {
-	                s.setName(newName);
-	                s.setGrade(newGrade);
-	                break;
-	            }
-	        }
-	    }
 
-	    // Delete a student by ID
-	    public void deleteStudent(int id) {
-	        students.removeIf(s -> s.getId() == id);
-	    }
+if(i>0) {
+	System.out.println("data updated successfully");
+	return true;
+	
+}
 
-	    // Search student by name
-	    public Student searchStudentByName(String name) {
-	        for (Student s : students) {
-	            if (s.getName().equalsIgnoreCase(name)) {
-	                return s;
-	            }
-	        }
-	        return null;
-	    }
+else {
+	return false;
+	
+}
 
 }
-#######
+public static  boolean insertstudent( int sid,String name, long phone, String mail, String branch, String location)
+{
+	
+	return false;
+	
+}
+public static boolean deletestudent(int id ) {
+	
+	return false;
+	
+}
+}
+///mysql connection
+package dao;
 
-package Task;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-public class main {
+public class connector {
+public static Connection  requestConnection() throws ClassNotFoundException, SQLException 
+{
+	Connection con=null;
+	String url="jdbc:mysql://localhost:3306/pentagon";
+	String user="root";
+	String password="tiger";
+	Class.forName("com.mysql.cj.jdbc.Driver");
+	con= DriverManager.getConnection(url,user,password);
+	return con;
+	
+}}
+
+
+
+
+
+package dao;
+
+import java.util.List;
+import java.util.Scanner;
+
+public class test {
+
 	public static void main(String[] args) {
-        StudentManagementSystem sms = new StudentManagementSystem();
-
-        // Create new students
-        sms.addStudent(new Student(1, "Alice", "A"));
-        sms.addStudent(new Student(2, "Bob", "B"));
-        sms.addStudent(new Student(3, "Ramesh", "B+"));
-        sms.addStudent(new Student(4, "Sanjay", "A-"));
-
-        // Read and display students
-        System.out.println("Students List:");
-        sms.viewStudents();
-
-        // Update student's details
-        sms.updateStudent(2, "Robert", "A+");
-        System.out.println("\nAfter updating Bob's details:");
-        sms.viewStudents();
-
-        // Search for a student by name
-        System.out.println("\nSearching for Ramesh:");
-        Student foundStudent = sms.searchStudentByName("Ramesh");
-        System.out.println(foundStudent != null ? foundStudent : "Student not found.");
-
-        // Delete a student
-        sms.deleteStudent(1);
-        System.out.println("\nAfter deleting Alice:");
-        sms.viewStudents();
-    }
-
+		Studentdao sdao=new Studentdao();
+		Scanner sc=new Scanner(System.in);
+		//List <student> studentList = sdao.getstudent();
+		//for(student s : studentList) 
+		//{
+		//	System.out.println(s);
+		//}
+		
+		System.out.println("enter the student id");
+		int id =sc.nextInt();
+		student s= sdao.getStudent( id);
+		System.out.println(s);
+		System.out.println("enter the phone number to be updated");
+		long upd_phone=sc.nextLong();
+		s.setPhone(upd_phone);
+  s.setSid(id);
+   System.out.println(s);			
+	}
+	 
+	
 }
 
 
 
 
+
+    
